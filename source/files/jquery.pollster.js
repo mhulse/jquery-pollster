@@ -1,3 +1,16 @@
+/**
+ * jQuery Pollster
+ * Simple plugin to manage long polling for ajax JSON(p) requests.
+ *
+ * @author Micky Hulse
+ * @link http://mky.io
+ * @docs https://github.com/mhulse/jquery-pollster
+ * @copyright Copyright (c) 2014 Micky Hulse.
+ * @license Released under the Apache License, Version 2.0.
+ * @version 1.0.0
+ * @date 2014/10/24
+ */
+
 ;(function($, window) {
 	
 	'use strict';
@@ -21,17 +34,22 @@
 		init: function($options) {
 			
 			var $settings = $.extend({}, $[NS].defaults, $options);
+			var $target;
+			var $loader;
+			var timeout;
+			var qs;
 			
 			if ($settings.api) {
 				
-				if ($settings.target) {
+				$target = (($settings.target instanceof jQuery) ? $settings.target : $('#' + $settings.target));
+				
+				if ($target.length) {
 					
 					if ($settings.callback) {
 						
-						var $this = (($settings.target instanceof jQuery) ? $settings.target : $('#' + $settings.target));
-						var $loader = (($settings.loader.length) ? $this.find('.' + $settings.loader) : '');
-						var timeout = ($settings.timeout * 1000); // Convert seconds to milliseconds.
-						var qs = ($settings.dataType == 'jsonp') ? '?callback=?' : ''; // Callback for JSONP only.
+						$loader = (($settings.loader.length) ? $target.find('.' + $settings.loader) : '');
+						timeout = ($settings.timeout * 1000); // Convert seconds to milliseconds.
+						qs = ($settings.dataType == 'jsonp') ? '?callback=?' : ''; // Callback for JSONP only.
 						
 						$.ajax({
 							url: ((($.isFunction($settings.api)) ? $settings.api() : $settings.api) + qs),
@@ -50,13 +68,13 @@
 						})
 							.done(function($data) {
 								
-								$settings.callback.call($this, $data, $settings);
+								$settings.callback.call($target, $data, $settings);
 								
 								$settings.flag = true;
 								
 								setTimeout(function() {
 									
-									$[NS].call($this, $settings);
+									$[NS].call($target, $settings);
 									
 								}, timeout);
 								
@@ -65,7 +83,7 @@
 								
 								setTimeout(function() {
 									
-									$[NS].call($this, $settings);
+									$[NS].call($target, $settings);
 									
 								}, timeout);
 								
