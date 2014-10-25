@@ -1,0 +1,20 @@
+{
+  "name": "pollster",
+  "version": "0.1.0",
+  "main": [
+    "./pollster/jquery.pollster.js"
+  ],
+  "ignore": [
+    "source",
+    "demo",
+    "**/.*",
+    "**/*.md",
+    "**/*.json"
+  ],
+  "dependencies": {},
+  "devDependencies": {},
+  "keywords": [
+    "jquery",
+    "javascript"
+  ]
+}

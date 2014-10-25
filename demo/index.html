@@ -17,25 +17,17 @@
 			        box-sizing: border-box;
 		}
 		
-		.loading {
-			background: url(loader.gif) no-repeat;
-			width: 25px;
-			height: 25px;
-			background-size: cover;
-			position: absolute;
-			top: 5px;
-			right: 5px;
-		}
-		
 		.data {
 			position: relative;
 			max-width: 300px;
-			border: 1px solid #ccc;
+			border-width: 1px;
+			border-style: solid;
+			border-color: #ccc;
 			margin: 20px auto;
 			padding: 20px;
+			border-radius: 3px;
 		}
-		
-		.data .bar {
+		.data .data-bar {
 			background: #ccc;
 			width: 0;
 			height: 20px;
@@ -46,133 +38,123 @@
 			     -o-transition: width 0.4s;
 			        transition: width 0.4s;
 		}
+		.data .data-loader {
+			background-image: url(loader1.gif);
+			background-repeat: no-repeat;
+			width: 25px;
+			height: 25px;
+			background-size: cover;
+			position: absolute;
+			top: 5px;
+			right: 5px;
+		}
+		
+		.data.data-reverse {
+			color: #eee;
+			background: #333;
+			border-color: #000;
+		}
+		.data.data-reverse .data-bar { background: #999; }
+		.data.data-reverse .data-loader { background-image: url(loader2.gif); }
 		
 	</style>
 	
 </head>
 <body>
 	
-	<div id="mod1" class="data">
-		<div></div>
-		<span class="bar"></span>
-	</div>
+	<div id="mod1" class="data"></div>
 	
-	<div id="mod2" class="data">
-		<div></div>
-		<span class="bar"></span>
-	</div>
+	<div id="mod2" class="data data-reverse"></div>
 	
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script src="../pollster/jquery.pollster.min.js"></script>
 	<script>
 		
 		$(document).ready(function() {
 			
-			var $loading = $('<span />', {
-				'class': 'loading'
-			});
-			
-			// Master JSON handler:
-			
-			var worker = function(options) {
-				
-				var $this = this;
-				var $loading = $this.find('.loading');
-				
-				$.ajax({
-					//url: options.url,
-					url: ('foo' + ((Math.random() * 2 | 0) + 1) + '.json'),
-					//dataType: 'jsonp',
-					cache: false,
-					beforeSend: function() {
-						$loading.fadeIn('fast');
-					},
-					success: function() {
-						$loading.fadeOut('fast');
-					}
-					
-				})
-					.done(function(data) {
-						
-						console.log('Second success!');
-						
-						options.callback.call($this, data);
-						
-						setTimeout(function() {
-							worker.call($this, options)
-						}, options.timeout);
-						
-					})
-					.fail(function(data) {
-						
-						console.log('Error?');
-						
-						setTimeout(function() {
-							worker.call($this, options)
-						}, options.timeout);
-						
-					})
-					.always(function(data) {
-						
-						console.log('Complete!');
-						
-					});
-				
-			};
-			
-			// Example module calls follow ...
-			
 			//----------------------------------------------------------------------
 			
-			// Append loader gif to all data divs:
-			$loading
+			var $loading = $('<span />', {
+				'class': 'data-loader'
+			})
 				.hide()
 				.appendTo('.data');
 			
-			// Fire off first API call:
-			worker.call($('#mod1'), {
-				timeout: 10000,
-				//url: ...,
-				callback: function(data) {
+			//----------------------------------------------------------------------
+			
+			// Global plugin defaults:
+			$.pollster.defaults.dataType = 'json';
+			$.pollster.defaults.loader = 'data-loader';
+			$.pollster.defaults.api = function() {
+				return ('test' + ((Math.random() * 2 | 0) + 1) + '.json');
+			};
+			
+			//----------------------------------------------------------------------
+			
+				$.pollster({
+					target: 'mod1',
+					callback: function($data, $options) {
+						
+						var $this = $(this);
+						var template;
+						var percent = $data[0].options[0].percent + '%';
+						
+						if ( ! $options.flag) {
+							
+							template = [
+								'<div></div>',
+								'<span class="data-bar"></span>'
+							].join('\n');
+							
+							$this.append(template);
+							
+						}
+						
+						$this
+							.children('div')
+								.html($data[0].title + ' ' + percent);
+						
+						$this
+							.children('.data-bar')
+								.width(percent);
+						
+					}
+				});
+			
+			//----------------------------------------------------------------------
+			
+			$.pollster({
+				target: 'mod2',
+				timeout: 5,
+				callback: function($data, $options) {
 					
 					var $this = $(this);
-					var json = $.parseJSON(data);
+					var template;
+					var percent = $data[0].options[0].percent + '%';
 					
-					//console.log(this, data, json.options[0].percent_of_state_votes);
+					if ( ! $options.flag) {
+						
+						template = [
+							'<div></div>',
+							'<span class="data-bar"></span>'
+						].join('\n');
+						
+						$this.append(template);
+						
+					}
 					
 					$this
 						.find('div')
-							.html(json.contest_wrapper);
+							.html($data[0].title + ' ' + percent);
 					
 					$this
-						.find('.bar')
-							.width(json.options[0].percent_of_state_votes + '%');
+						.find('.data-bar')
+							.width(percent);
 					
 				}
 			});
 			
 			//----------------------------------------------------------------------
-			
-			// Fire off second API call:
-			worker.call($('#mod2'), {
-				timeout: 5000,
-				//url: ...,
-				callback: function(data) {
-					
-					var $this = $(this);
-					var json = $.parseJSON(data);
-					
-					//console.log(this, data, json.options[1].percent_of_state_votes);
-					
-					$this
-						.find('div')
-							.html(json.contest_wrapper);
-					
-					$this
-						.find('.bar')
-							.width(json.options[1].percent_of_state_votes + '%');
-					
-				}
-			});
 			
 		});
 		
