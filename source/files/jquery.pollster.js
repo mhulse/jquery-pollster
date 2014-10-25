@@ -1,16 +1,3 @@
-/**
- * jQuery Pollster
- * Simple plugin to manage long polling for ajax JSON(p) requests.
- *
- * @author Micky Hulse
- * @link http://mky.io
- * @docs https://github.com/mhulse/jquery-pollster
- * @copyright Copyright (c) 2014 Micky Hulse.
- * @license Released under the Apache License, Version 2.0.
- * @version 1.0.0
- * @date 2014/10/24
- */
-
 ;(function($, window) {
 	
 	'use strict';
