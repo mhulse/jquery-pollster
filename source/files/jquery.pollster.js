@@ -5,13 +5,16 @@
 	var NS = 'pollster';
 	
 	var $defaults = {
-		timeout: 10,       // Refresh time in seconds (defaults to 10).
+		seconds: 10,       // Refresh time in seconds (defaults to 10).
 		api: '',           // FQDN API endpoint.
 		target: '',        // ID name.
 		loader: 'loader',  // Class name.
 		callback: $.noop,  // Method to call upon JSONP success.
 		dataType: 'jsonp', // Change to `json` if not JSONP.
-		flag: false        // Will be `true` after first run.
+		first: false,      // Will be `true` after first run.
+		count: 1,          // Loop counter.
+		destroy: false,    // Remove plugin instance.
+		pause: false       // Pause the plugin instance?
 	};
 	
 	var console = (window.console || { log : $.noop, warn : $.noop });
@@ -23,7 +26,7 @@
 			var $settings = $.extend({}, $[NS].defaults, $options);
 			var $target;
 			var $loader;
-			var timeout;
+			var seconds;
 			var qs;
 			
 			if ($settings.api) {
@@ -35,7 +38,7 @@
 					if ($settings.callback) {
 						
 						$loader = (($settings.loader.length) ? $target.find('.' + $settings.loader) : '');
-						timeout = ($settings.timeout * 1000); // Convert seconds to milliseconds.
+						seconds = ($settings.seconds * 1000); // Convert seconds to milliseconds.
 						qs = ($settings.dataType == 'jsonp') ? '?callback=?' : ''; // Callback for JSONP only.
 						
 						$.ajax({
@@ -57,13 +60,15 @@
 								
 								$settings.callback.call($target, $data, $settings);
 								
-								$settings.flag = true;
+								// Helpers:
+								$settings.first = true;
+								$settings.count++;
 								
 								setTimeout(function() {
 									
 									$[NS].call($target, $settings);
 									
-								}, timeout);
+								}, seconds);
 								
 							})
 							.fail(function() {
@@ -72,7 +77,7 @@
 									
 									$[NS].call($target, $settings);
 									
-								}, timeout);
+								}, seconds);
 								
 							});
 						
@@ -94,7 +99,17 @@
 				
 			}
 			
-		}
+		}, // methods()
+		
+		destroy: function() {
+			
+			return this.each(function() {
+				
+				
+				
+			});
+			
+		} // destroy()
 		
 	};
 	

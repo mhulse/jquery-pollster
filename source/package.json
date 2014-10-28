@@ -2,7 +2,7 @@
   "title": "jQuery Pollster",
   "name": "pollster",
   "description": "Simple plugin to manage long polling for ajax JSON(p) requests.",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "homepage": "https://github.com/mhulse/jquery-pollster",
   "repository": {
     "type": "git",

@@ -99,7 +99,9 @@
 						var template;
 						var percent = $data[0].options[0].percent + '%';
 						
-						if ( ! $options.flag) {
+						console.log($this, $options.count);
+						
+						if ( ! $options.first) {
 							
 							template = [
 								'<div></div>',
@@ -125,14 +127,16 @@
 			
 			$.pollster({
 				target: 'mod2',
-				timeout: 5,
+				seconds: 5,
 				callback: function($data, $options) {
 					
 					var $this = $(this);
 					var template;
 					var percent = $data[0].options[0].percent + '%';
 					
-					if ( ! $options.flag) {
+					console.log($this, $options.count);
+					
+					if ( ! $options.first) {
 						
 						template = [
 							'<div></div>',
