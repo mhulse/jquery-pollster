@@ -83,7 +83,7 @@
 			//----------------------------------------------------------------------
 			
 			// Global plugin defaults:
-			$.pollster.defaults.dataType = 'json';
+			$.pollster.defaults.type = 'json';
 			$.pollster.defaults.loader = 'data-loader';
 			$.pollster.defaults.api = function() {
 				return ('test' + ((Math.random() * 2 | 0) + 1) + '.json');
@@ -128,6 +128,8 @@
 			$.pollster({
 				target: 'mod2',
 				seconds: 5,
+				params: 'subcats=' + encodeURIComponent('elections oregon results'),
+				//type: 'jsonp',
 				callback: function($data, $options) {
 					
 					var $this = $(this);

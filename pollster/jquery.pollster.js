@@ -7,8 +7,8 @@
  * @docs https://github.com/mhulse/jquery-pollster
  * @copyright Copyright (c) 2014 Micky Hulse.
  * @license Released under the Apache License, Version 2.0.
- * @version 1.1.0
- * @date 2014/10/28
+ * @version 1.2.0
+ * @date 2014/10/29
  */
 
 ;(function($, window) {
@@ -18,16 +18,15 @@
 	var NS = 'pollster';
 	
 	var $defaults = {
-		seconds: 10,       // Refresh time in seconds (defaults to 10).
-		api: '',           // FQDN API endpoint.
-		target: '',        // ID name.
-		loader: 'loader',  // Class name.
-		callback: $.noop,  // Method to call upon JSONP success.
-		dataType: 'jsonp', // Change to `json` if not JSONP.
-		first: false,      // Will be `true` after first run.
-		count: 1,          // Loop counter.
-		destroy: false,    // Remove plugin instance.
-		pause: false       // Pause the plugin instance?
+		seconds: 10,      // Refresh time in seconds (defaults to 10).
+		api: '',          // FQDN API endpoint.
+		target: '',       // ID name.
+		loader: 'loader', // Class name.
+		callback: $.noop, // Method to call upon JSONP success.
+		type: 'jsonp',    // Change to `json` if not JSONP.
+		first: false,     // Will be `true` after first run.
+		count: 1,         // Loop counter.
+		params: ''        // Additional query string url params.
 	};
 	
 	var console = (window.console || { log : $.noop, warn : $.noop });
@@ -40,7 +39,6 @@
 			var $target;
 			var $loader;
 			var seconds;
-			var qs;
 			
 			if ($settings.api) {
 				
@@ -52,11 +50,10 @@
 						
 						$loader = (($settings.loader.length) ? $target.find('.' + $settings.loader) : '');
 						seconds = ($settings.seconds * 1000); // Convert seconds to milliseconds.
-						qs = ($settings.dataType == 'jsonp') ? '?callback=?' : ''; // Callback for JSONP only.
 						
 						$.ajax({
-							url: ((($.isFunction($settings.api)) ? $settings.api() : $settings.api) + qs),
-							dataType: $settings.dataType,
+							url: ((($.isFunction($settings.api)) ? $settings.api() : $settings.api) + ($settings.params && '?' + $settings.params)),
+							dataType: $settings.type,
 							beforeSend: function() {
 								
 								$loader.fadeIn(); // Fade IN loader if it exists.
