@@ -11,7 +11,7 @@
 		loader: 'loader', // Class name.
 		callback: $.noop, // Method to call upon JSONP success.
 		type: 'jsonp',    // Change to `json` if not JSONP.
-		first: false,     // Will be `true` after first run.
+		first: true,      // Will be `false` after first run.
 		count: 1,         // Loop counter.
 		params: ''        // Additional query string url params.
 	};
@@ -58,7 +58,7 @@
 								$settings.callback.call($target, $data, $settings);
 								
 								// Helpers:
-								$settings.first = true;
+								$settings.first = false;
 								$settings.count++;
 								
 								setTimeout(function() {

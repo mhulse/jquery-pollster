@@ -7,8 +7,8 @@
  * @docs https://github.com/mhulse/jquery-pollster
  * @copyright Copyright (c) 2014 Micky Hulse.
  * @license Released under the Apache License, Version 2.0.
- * @version 1.2.0
- * @date 2014/10/29
+ * @version 1.3.0
+ * @date 2014/11/01
  */
 
 ;(function($, window) {
@@ -24,7 +24,7 @@
 		loader: 'loader', // Class name.
 		callback: $.noop, // Method to call upon JSONP success.
 		type: 'jsonp',    // Change to `json` if not JSONP.
-		first: false,     // Will be `true` after first run.
+		first: true,      // Will be `false` after first run.
 		count: 1,         // Loop counter.
 		params: ''        // Additional query string url params.
 	};
@@ -71,7 +71,7 @@
 								$settings.callback.call($target, $data, $settings);
 								
 								// Helpers:
-								$settings.first = true;
+								$settings.first = false;
 								$settings.count++;
 								
 								setTimeout(function() {
