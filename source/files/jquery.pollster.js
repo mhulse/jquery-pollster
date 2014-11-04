@@ -11,6 +11,7 @@
 		loader: 'loader', // Class name.
 		callback: $.noop, // Method to call upon JSONP success.
 		type: 'jsonp',    // Change to `json` if not JSONP.
+		cache: false,     // Cache requested pages?
 		first: true,      // Will be `false` after first run.
 		count: 1,         // Loop counter.
 		params: ''        // Additional query string url params.
@@ -41,6 +42,7 @@
 						$.ajax({
 							url: ((($.isFunction($settings.api)) ? $settings.api() : $settings.api) + ($settings.params && '?' + $settings.params)),
 							dataType: $settings.type,
+							cache: $settings.cache,
 							beforeSend: function() {
 								
 								$loader.fadeIn(); // Fade IN loader if it exists.
