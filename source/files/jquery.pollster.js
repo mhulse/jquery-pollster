@@ -5,16 +5,18 @@
 	var NS = 'pollster';
 	
 	var $defaults = {
-		seconds: 10,      // Refresh time in seconds (defaults to 10).
-		api: '',          // FQDN API endpoint.
-		target: '',       // ID name.
-		loader: 'loader', // Class name.
-		callback: $.noop, // Method to call upon JSONP success.
-		type: 'jsonp',    // Change to `json` if not JSONP.
-		cache: false,     // Cache requested pages?
-		first: true,      // Will be `false` after first run.
-		count: 1,         // Loop counter.
-		params: ''        // Additional query string url params.
+		seconds: 10,       // Refresh time in seconds (defaults to 10).
+		api: '',           // FQDN API endpoint.
+		target: '',        // ID name.
+		loader: 'loader',  // Class name.
+		callback: $.noop,  // Method to call upon JSONP success.
+		type: 'jsonp',     // Change to `json` if not JSONP.
+		cache: false,      // Cache requested pages?
+		first: true,       // Will be `false` after first run.
+		count: 1,          // Loop counter.
+		params: '',        // Additional query string url params.
+		jsonpCallback: '', // Custom callback function name.
+		jsonp: ''          // Override the callback function name in a JSONP request.
 	};
 	
 	var console = (window.console || { log : $.noop, warn : $.noop });
@@ -43,6 +45,8 @@
 							url: ((($.isFunction($settings.api)) ? $settings.api() : $settings.api) + ($settings.params && '?' + $settings.params)),
 							dataType: $settings.type,
 							cache: $settings.cache,
+							jsonpCallback: $settings.jsonpCallback,
+							jsonp: $settings.jsonp,
 							beforeSend: function() {
 								
 								$loader.fadeIn(); // Fade IN loader if it exists.
