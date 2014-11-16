@@ -7,29 +7,27 @@
  * @docs https://github.com/mhulse/jquery-pollster
  * @copyright Copyright (c) 2014 Micky Hulse.
  * @license Released under the Apache License, Version 2.0.
- * @version 2.0.0
- * @date 2014/11/04
+ * @version 3.0.0
+ * @date 2014/11/16
  */
 
 ;(function($, window) {
 	
 	'use strict';
 	
+	// Plugin namespace:
 	var NS = 'pollster';
 	
+	// Initialization public defaults:
 	var $defaults = {
-		seconds: 10,       // Refresh time in seconds (defaults to 10).
-		api: '',           // FQDN API endpoint.
-		target: '',        // ID name.
-		loader: 'loader',  // Class name.
-		callback: $.noop,  // Method to call upon JSONP success.
-		type: 'jsonp',     // Change to `json` if not JSONP.
-		cache: false,      // Cache requested pages?
-		first: true,       // Will be `false` after first run.
-		count: 1,          // Loop counter.
-		params: '',        // Additional query string url params.
-		jsonpCallback: '', // Custom callback function name.
-		jsonp: ''          // Override the callback function name in a JSONP request.
+		ajax: {},         // Options for `jQuery.ajax()` (http://api.jquery.com/jquery.ajax/).
+		callback: $.noop, // Method to call upon JSONP success.
+		count: 1,         // Loop counter.
+		first: true,      // Will be `false` after first run.
+		//loader: 'loader', // Class name.
+		seconds: 10,      // Refresh time in seconds (defaults to 10).
+		target: '',       // ID name.
+		url: ''           // Override `jQuery.ajax()` url option (useful if `url` is a function).
 	};
 	
 	var console = (window.console || { log : $.noop, warn : $.noop });
@@ -38,12 +36,12 @@
 		
 		init: function($options) {
 			
-			var $settings = $.extend({}, $[NS].defaults, $options);
+			var $settings = $.extend(true, {}, $defaults, $[NS].defaults, $options);
 			var $target;
-			var $loader;
+			//var $loader;
 			var seconds;
 			
-			if ($settings.api) {
+			if ($settings.url || $settings.ajax.url) { // @TODO: 
 				
 				$target = (($settings.target instanceof jQuery) ? $settings.target : $('#' + $settings.target));
 				
@@ -51,29 +49,20 @@
 					
 					if ($settings.callback) {
 						
-						$loader = (($settings.loader.length) ? $target.find('.' + $settings.loader) : '');
+						//$loader = (($settings.loader.length) ? $target.find('.' + $settings.loader) : '');
 						seconds = ($settings.seconds * 1000); // Convert seconds to milliseconds.
 						
-						$.ajax({
-							url: ((($.isFunction($settings.api)) ? $settings.api() : $settings.api) + ($settings.params && '?' + $settings.params)),
-							dataType: $settings.type,
-							cache: $settings.cache,
-							jsonpCallback: $settings.jsonpCallback,
-							jsonp: $settings.jsonp,
-							beforeSend: function() {
-								
-								$loader.fadeIn(); // Fade IN loader if it exists.
-								
-							},
-							success: function() {
-								
-								$loader.fadeOut(); // Fade OUT loader if it exists.
-								
-							}
-							
-						})
+						// Allow for url to be a function:
+						$settings.ajax.url = ((typeof $settings.url == 'function') ? $settings.url() : $settings.ajax.url);
+						
+						// Give context to all ajax-related callbacks:
+						$settings.ajax.context = $settings.ajax.context || $target[0];
+						
+						// Return `$.ajax` to allow client to access chained events:
+						return $.ajax($settings.ajax)
 							.done(function($data) {
 								
+								// Success, call user's code:
 								$settings.callback.call($target, $data, $settings);
 								
 								// Helpers:
@@ -82,6 +71,7 @@
 								
 								setTimeout(function() {
 									
+									// Wash, rinse and repeat:
 									$[NS].call($target, $settings);
 									
 								}, seconds);
@@ -91,6 +81,7 @@
 								
 								setTimeout(function() {
 									
+									// Ain't no thang!
 									$[NS].call($target, $settings);
 									
 								}, seconds);
@@ -111,7 +102,7 @@
 				
 			} else {
 				
-				console.warn('jQuery.%s: No API endpoint specified.', NS);
+				console.warn('jQuery.%s: No URL endpoint specified.', NS);
 				
 			}
 			
@@ -121,7 +112,7 @@
 			
 			return this.each(function() {
 				
-				
+				// @TODO, this.
 				
 			});
 			
@@ -129,6 +120,7 @@
 		
 	};
 	
+	// Boilerplate method calling logic:
 	$[NS] = function(method) {
 		
 		if (methods[method]) {
@@ -147,6 +139,6 @@
 		
 	};
 	
-	$[NS].defaults = $defaults;
+	$[NS].defaults = $defaults; // Pre-initialization public defaults.
 	
 }(jQuery, window));

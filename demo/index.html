@@ -17,18 +17,62 @@
 			        box-sizing: border-box;
 		}
 		
+		body {
+			font-family: arial, sans-serif;
+			font-size: 14px;
+			color: #333;
+			background: #eee;
+		}
+		
+		#container {
+			border: 1px solid #ccc;
+			border-radius: 3px;
+			background: #fff;
+			margin: 50px auto;
+			padding: 10px;
+			max-width: 960px;
+			position: relative;
+			box-shadow: 0 0 5px rgba(0, 0, 0, .1)
+		}
+		
+		#boxes > :first-child { margin-top: 0; }
+		#boxes > :last-child { margin-bottom: 0; }
+		
+		.loader {
+			background-image: url(loader1.gif);
+			background-repeat: no-repeat;
+			width: 25px;
+			height: 25px;
+			background-size: cover;
+			position: absolute;
+			top: 5px;
+			right: 5px;
+			display: none; /* Controlled by JavaScript. */
+		}
+		
 		.data {
 			position: relative;
-			max-width: 300px;
 			border-width: 1px;
 			border-style: solid;
 			border-color: #ccc;
-			margin: 20px auto;
+			background: #fff;
+			margin: 10px 35px 10px 0;
 			padding: 20px;
 			border-radius: 3px;
 		}
+		.data .data-label {
+			color: #888;
+			letter-spacing: .05em;
+			margin: 0 0 5px;
+		}
 		.data .data-bar {
+			background: rgba(0, 0, 0, .25);
+			box-shadow: inset 0 0 3px rgba(0, 0, 0, .25);
+			border-radius: 3px;
+		}
+		.data .data-bar span {
 			background: #ccc;
+			background: linear-gradient(to bottom, #f85032 0, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
 			width: 0;
 			height: 20px;
 			border-radius: 3px;
@@ -38,33 +82,29 @@
 			     -o-transition: width 0.4s;
 			        transition: width 0.4s;
 		}
-		.data .data-loader {
-			background-image: url(loader1.gif);
-			background-repeat: no-repeat;
-			width: 25px;
-			height: 25px;
-			background-size: cover;
-			position: absolute;
-			top: 5px;
-			right: 5px;
-		}
-		
 		.data.data-reverse {
 			color: #eee;
 			background: #333;
 			border-color: #000;
 		}
-		.data.data-reverse .data-bar { background: #999; }
-		.data.data-reverse .data-loader { background-image: url(loader2.gif); }
+		.data.data-reverse .loader { background-image: url(loader2.gif); }
 		
 	</style>
 	
 </head>
 <body>
 	
-	<div id="mod1" class="data"></div>
-	
-	<div id="mod2" class="data data-reverse"></div>
+	<div id="container">
+		
+		<div id="boxes">
+			
+			<div id="box1" class="data"></div>
+			
+			<div id="box2" class="data data-reverse"></div>
+			
+		</div> <!-- /#boxes -->
+		
+	</div> <!-- /#container -->
 	
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 	<script src="../pollster/jquery.pollster.min.js"></script>
@@ -72,92 +112,106 @@
 		
 		$(document).ready(function() {
 			
+			var bar;
+			var $loader;
+			
 			//----------------------------------------------------------------------
 			
-			var $loading = $('<span />', {
-				'class': 'data-loader'
+			$('<span />', {
+				'class': 'loader'
 			})
 				.hide()
-				.appendTo('.data');
+				.appendTo('#container, .data');
+			
+			$loader = $('#container').children('.loader');
+			
+			$(document)
+				.ajaxStart(function() {
+					if ($loader.is(':hidden'))
+						$loader
+							.fadeIn();
+				})
+				.ajaxStop(function() {
+					if ($loader.is(':visible'))
+						$loader
+							.fadeOut();
+				});
+			
+			$.ajaxSetup({
+				beforeSend: function() {
+					$(this)
+						.find('.loader')
+						.fadeIn();
+				},
+				success: function() {
+					$(this)
+						.find('.loader')
+						.fadeOut();
+				}
+			});
 			
 			//----------------------------------------------------------------------
 			
 			// Global plugin defaults:
-			$.pollster.defaults.type = 'json';
-			$.pollster.defaults.loader = 'data-loader';
-			$.pollster.defaults.api = function() {
+			$.pollster.defaults.ajax.dataType = 'json';
+			$.pollster.defaults.url = function() {
 				return ('test' + ((Math.random() * 2 | 0) + 1) + '.json');
 			};
 			
 			//----------------------------------------------------------------------
 			
-				$.pollster({
-					target: 'mod1',
-					callback: function($data, $options) {
-						
-						var $this = $(this);
-						var template;
-						var percent = $data[0].options[0].percent + '%';
-						
-						console.log($this, $options.count);
-						
-						if ($options.first) {
-							
-							template = [
-								'<div></div>',
-								'<span class="data-bar"></span>'
-							].join('\n');
-							
-							$this.append(template);
-							
-						}
-						
-						$this
-							.children('div')
-								.html($data[0].title + ' ' + percent);
-						
-						$this
-							.children('.data-bar')
-								.width(percent);
-						
-					}
-				});
+			bar = function($data, $options) {
+				
+				var $this = $(this);
+				var template;
+				var percent = $data[0].options[0].percent + '%';
+				
+				console.log($this, $options.count);
+				
+				if ($options.first) {
+					
+					template = [
+						'<p class="data-label"></p>',
+						'<div class="data-bar"><span></span></div>'
+					].join('\n');
+					
+					$this.append(template);
+					
+				}
+				
+				$this
+					.find('p')
+						.html($data[0].title + ' ' + percent);
+				
+				$this
+					.find('.data-bar span')
+						.width(percent);
+				
+			};
 			
 			//----------------------------------------------------------------------
 			
 			$.pollster({
-				target: 'mod2',
-				seconds: 5,
-				params: 'subcats=' + encodeURIComponent('elections oregon results'),
-				//type: 'jsonp',
-				callback: function($data, $options) {
-					
-					var $this = $(this);
-					var template;
-					var percent = $data[0].options[0].percent + '%';
-					
-					console.log($this, $options.count);
-					
-					if ($options.first) {
-						
-						template = [
-							'<div></div>',
-							'<span class="data-bar"></span>'
-						].join('\n');
-						
-						$this.append(template);
-						
+				target: 'box1',
+				ajax: {
+					//type: 'jsonp',
+					data: {
+						subcats: 'Lorem ipsum dolor sit'
 					}
-					
-					$this
-						.find('div')
-							.html($data[0].title + ' ' + percent);
-					
-					$this
-						.find('.data-bar')
-							.width(percent);
-					
-				}
+				},
+				callback: bar
+			}).done(function($data) {
+				
+				console.log('done', $data);
+				
+			});
+			
+			//----------------------------------------------------------------------
+			
+			$.pollster({
+				target: 'box2',
+				seconds: 5,
+				callback: bar
 			});
 			
 			//----------------------------------------------------------------------
