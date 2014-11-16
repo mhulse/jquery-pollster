@@ -20,7 +20,7 @@ There are several ways to install this code:
 
 ## Usage
 
-Coming soon.
+Coming soon. For now, check out the [plugin's](pollster/jquery.pollster.js) and the demo [page's](demo/index.html) source code.
 
 ## Build instructions?
 
