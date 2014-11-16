@@ -167,7 +167,7 @@
 				var percent = $data[0].options[0].percent + '%';
 				
 				console.log($this, $options.count);
-				
+					
 				if ($options.first) {
 					
 					template = [
@@ -179,13 +179,33 @@
 					
 				}
 				
-				$this
+				var text = $this
 					.find('p')
 						.html($data[0].title + ' ' + percent);
 				
 				$this
 					.find('.data-bar span')
 						.width(percent);
+				
+				if ($options.count == 3) {
+					
+					console.log('paused');
+					
+					$options.pause = true;
+					
+					text.append(' (paused)')
+					
+					setTimeout(function() {
+						
+						console.log('unpaused');
+						
+						$options.pause = false;
+						
+						$.pollster($options);
+						
+					}, 20000);
+					
+				}
 				
 			};
 			

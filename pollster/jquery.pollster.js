@@ -38,7 +38,7 @@
 			
 			var $settings = $.extend(true, {}, $defaults, $[NS].defaults, $options);
 			var $target;
-			//var $loader;
+			var $timeout;
 			var seconds;
 			
 			if ($settings.url || $settings.ajax.url) { // @TODO: 
@@ -49,44 +49,55 @@
 					
 					if ($settings.callback) {
 						
-						//$loader = (($settings.loader.length) ? $target.find('.' + $settings.loader) : '');
-						seconds = ($settings.seconds * 1000); // Convert seconds to milliseconds.
-						
-						// Allow for url to be a function:
-						$settings.ajax.url = ((typeof $settings.url == 'function') ? $settings.url() : $settings.ajax.url);
-						
-						// Give context to all ajax-related callbacks:
-						$settings.ajax.context = $settings.ajax.context || $target[0];
-						
-						// Return `$.ajax` to allow client to access chained events:
-						return $.ajax($settings.ajax)
-							.done(function($data) {
-								
-								// Success, call user's code:
-								$settings.callback.call($target, $data, $settings);
-								
-								// Helpers:
-								$settings.first = false;
-								$settings.count++;
-								
-								setTimeout(function() {
+						// Pause the timeout?
+						if ($settings.pause) {
+							
+							window.clearInterval($timeout);
+							
+							$timeout = 0;
+							
+						} else {
+							
+							// Convert seconds to milliseconds:
+							seconds = ($settings.seconds * 1000);
+							
+							// Allow for url to be a function:
+							$settings.ajax.url = ((typeof $settings.url == 'function') ? $settings.url() : $settings.ajax.url);
+							
+							// Give context to all ajax-related callbacks:
+							$settings.ajax.context = $settings.ajax.context || $target[0];
+							
+							// Return `$.ajax` to allow client to access chained events:
+							return $.ajax($settings.ajax)
+								.done(function($data) {
 									
-									// Wash, rinse and repeat:
-									$[NS].call($target, $settings);
+									// Success, call user's code:
+									$settings.callback.call($target, $data, $settings);
 									
-								}, seconds);
-								
-							})
-							.fail(function() {
-								
-								setTimeout(function() {
+									// Helpers:
+									$settings.first = false;
+									$settings.count++;
 									
-									// Ain't no thang!
-									$[NS].call($target, $settings);
+									$timeout = setTimeout(function() {
+										
+										// Wash, rinse and repeat:
+										$[NS].call($target, $settings);
+										
+									}, seconds);
 									
-								}, seconds);
-								
-							});
+								})
+								.fail(function() {
+									
+									$timeout = setTimeout(function() {
+										
+										// Ain't no thang!
+										$[NS].call($target, $settings);
+										
+									}, seconds);
+									
+								});
+							
+						}
 						
 					} else {
 						
