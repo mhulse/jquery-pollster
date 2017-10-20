@@ -13,9 +13,7 @@
 		callback: $.noop, // Method to call upon JSONP success.
 		count: 1,         // Loop counter.
 		first: true,      // Will be `false` after first run.
-		//loader: 'loader', // Class name.
 		seconds: 10,      // Refresh time in seconds (defaults to 10).
-		target: '',       // ID name.
 		url: ''           // Override `jQuery.ajax()` url option (useful if `url` is a function).
 	};
 	
@@ -26,77 +24,60 @@
 		init: function($options) {
 			
 			var $settings = $.extend(true, {}, $defaults, $[NS].defaults, $options);
-			var $target;
 			var $timeout;
 			var seconds;
+			var context;
 			
-			if ($settings.url || $settings.ajax.url) { // @TODO: 
+			// Check required params:
+			if ($settings.url || $settings.ajax.url) {
 				
-				$target = (($settings.target instanceof jQuery) ? $settings.target : $('#' + $settings.target));
-				
-				if ($target.length) {
+				// Pause the timeout?
+				if ($settings.pause) {
 					
-					if ($settings.callback) {
-						
-						// Pause the timeout?
-						if ($settings.pause) {
-							
-							window.clearInterval($timeout);
-							
-							$timeout = 0;
-							
-						} else {
-							
-							// Convert seconds to milliseconds:
-							seconds = ($settings.seconds * 1000);
-							
-							// Allow for url to be a function:
-							$settings.ajax.url = ((typeof $settings.url == 'function') ? $settings.url() : $settings.ajax.url);
-							
-							// Give context to all ajax-related callbacks:
-							$settings.ajax.context = $settings.ajax.context || $target[0];
-							
-							// Return `$.ajax` to allow client to access chained events:
-							return $.ajax($settings.ajax)
-								.done(function($data) {
-									
-									// Success, call user's code:
-									$settings.callback.call($target, $data, $settings);
-									
-									// Helpers:
-									$settings.first = false;
-									$settings.count++;
-									
-									$timeout = setTimeout(function() {
-										
-										// Wash, rinse and repeat:
-										$[NS].call($target, $settings);
-										
-									}, seconds);
-									
-								})
-								.fail(function() {
-									
-									$timeout = setTimeout(function() {
-										
-										// Ain't no thang!
-										$[NS].call($target, $settings);
-										
-									}, seconds);
-									
-								});
-							
-						}
-						
-					} else {
-						
-						console.warn('jQuery.%s: Callback function not defined for %o.', NS, this);
-						
-					}
+					window.clearInterval($timeout);
+					
+					$timeout = 0;
 					
 				} else {
 					
-					console.warn('jQuery.%s: Target element is required.', NS);
+					// Convert seconds to milliseconds:
+					seconds = ($settings.seconds * 1000);
+					
+					// Allow for url to be a function:
+					$settings.ajax.url = ((typeof $settings.url == 'function') ? $settings.url() : $settings.ajax.url);							
+					
+					// Give optional context to all ajax-related callbacks:
+					context = ($settings.ajax.context || null);
+					
+					// Return `$.ajax` to allow client to access chained events:
+					return $.ajax($settings.ajax)
+						.done(function($data) {
+							
+							// Success, call user's code:
+							$settings.callback.call(context, $data, $settings);
+							
+							// Helpers:
+							$settings.first = false;
+							$settings.count++;
+							
+							$timeout = setTimeout(function() {
+								
+								// Wash, rinse and repeat:
+								$[NS].call(context, $settings);
+								
+							}, seconds);
+							
+						})
+						.fail(function() {
+							
+							$timeout = setTimeout(function() {
+								
+								// Ain't no thang!
+								$[NS].call($settings.ajax.context, $settings);
+								
+							}, seconds);
+							
+						});
 					
 				}
 				
@@ -106,7 +87,7 @@
 				
 			}
 			
-		}, // methods()
+		},
 		
 		destroy: function() {
 			
@@ -116,7 +97,7 @@
 				
 			});
 			
-		} // destroy()
+		}
 		
 	};
 	
@@ -139,6 +120,7 @@
 		
 	};
 	
-	$[NS].defaults = $defaults; // Pre-initialization public defaults.
+	// Pre-initialization public defaults.
+	$[NS].defaults = $defaults;
 	
 }(jQuery, window));

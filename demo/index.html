@@ -13,8 +13,8 @@
 		
 		* {
 			-webkit-box-sizing: border-box;
-			   -moz-box-sizing: border-box;
-			        box-sizing: border-box;
+			-moz-box-sizing: border-box;
+			box-sizing: border-box;
 		}
 		
 		body {
@@ -107,7 +107,7 @@
 	</div>
 	
 	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-	<script src="../jquery.pollster.js"></script>
+	<script src="../jquery.pollster.min.js"></script>
 	<script>
 		
 		$(document).ready(function() {
@@ -211,14 +211,19 @@
 			
 			//----------------------------------------------------------------------
 			
-			$('#box1').pollster({
+			$.pollster({
 				ajax: {
 					//type: 'jsonp',
 					data: {
 						subcats: 'Lorem ipsum dolor sit'
-					}
+					},
+					context: $('#box1')
 				},
-				callback: bar
+				callback: function($data, $options) {
+					
+					bar.call(this, $data, $options);
+					
+				}
 			}).done(function($data) {
 				
 				console.log('done', $data);
@@ -227,9 +232,16 @@
 			
 			//----------------------------------------------------------------------
 			
-			$('#box2').pollster({
+			$.pollster({
 				seconds: 5,
-				callback: bar
+				ajax: {
+					context: $('#box2')
+				},
+				callback: function($data, $options) {
+					
+					bar.call(this, $data, $options);
+					
+				}
 			});
 			
 			//----------------------------------------------------------------------
