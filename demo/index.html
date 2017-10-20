@@ -102,12 +102,12 @@
 			
 			<div id="box2" class="data data-reverse"></div>
 			
-		</div> <!-- /#boxes -->
+		</div>
 		
-	</div> <!-- /#container -->
+	</div>
 	
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-	<script src="../pollster/jquery.pollster.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<script src="../jquery.pollster.js"></script>
 	<script>
 		
 		$(document).ready(function() {
@@ -211,8 +211,7 @@
 			
 			//----------------------------------------------------------------------
 			
-			$.pollster({
-				target: 'box1',
+			$('#box1').pollster({
 				ajax: {
 					//type: 'jsonp',
 					data: {
@@ -228,8 +227,7 @@
 			
 			//----------------------------------------------------------------------
 			
-			$.pollster({
-				target: 'box2',
+			$('#box2').pollster({
 				seconds: 5,
 				callback: bar
 			});
