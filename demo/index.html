@@ -16,40 +16,51 @@
 			-moz-box-sizing: border-box;
 			box-sizing: border-box;
 		}
-		
+
 		body {
 			font-family: arial, sans-serif;
 			font-size: 14px;
 			color: #333;
 			background: #eee;
 		}
-		
+
 		#container {
 			border: 1px solid #ccc;
+			-webkit-border-radius: 3px;
+			-moz-border-radius: 3px;
 			border-radius: 3px;
 			background: #fff;
 			margin: 50px auto;
 			padding: 10px;
 			max-width: 960px;
 			position: relative;
+			-webkit-box-shadow: 0 0 5px rgba(0, 0, 0, .1);
+			-moz-box-shadow: 0 0 5px rgba(0, 0, 0, .1);
 			box-shadow: 0 0 5px rgba(0, 0, 0, .1)
 		}
-		
-		#boxes > :first-child { margin-top: 0; }
-		#boxes > :last-child { margin-bottom: 0; }
-		
+
+		#boxes > :first-child {
+			margin-top: 0;
+		}
+		#boxes > :last-child {
+			margin-bottom: 0;
+		}
+
 		.loader {
 			background-image: url(loader1.gif);
 			background-repeat: no-repeat;
 			width: 25px;
 			height: 25px;
+			-webkit-background-size: cover;
+			-moz-background-size: cover;
+			-o-background-size: cover;
 			background-size: cover;
 			position: absolute;
 			top: 5px;
 			right: 5px;
 			display: none; /* Controlled by JavaScript. */
 		}
-		
+
 		.data {
 			position: relative;
 			border-width: 1px;
@@ -58,6 +69,8 @@
 			background: #fff;
 			margin: 10px 35px 10px 0;
 			padding: 20px;
+			-webkit-border-radius: 3px;
+			-moz-border-radius: 3px;
 			border-radius: 3px;
 		}
 		.data .data-label {
@@ -67,27 +80,39 @@
 		}
 		.data .data-bar {
 			background: rgba(0, 0, 0, .25);
+			-webkit-box-shadow: inset 0 0 3px rgba(0, 0, 0, .25);
+			-moz-box-shadow: inset 0 0 3px rgba(0, 0, 0, .25);
 			box-shadow: inset 0 0 3px rgba(0, 0, 0, .25);
+			-webkit-border-radius: 3px;
+			-moz-border-radius: 3px;
 			border-radius: 3px;
 		}
 		.data .data-bar span {
 			background: #ccc;
+			background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f85032), color-stop(50%, #f16f5c), color-stop(51%, #f6290c), color-stop(71%, #f02f17), to(#e73827));
+			background: -webkit-linear-gradient(top, #f85032 0, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
+			background: -moz-linear-gradient(top, #f85032 0, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
+			background: -o-linear-gradient(top, #f85032 0, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
 			background: linear-gradient(to bottom, #f85032 0, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
 			width: 0;
 			height: 20px;
+			-webkit-border-radius: 3px;
+			-moz-border-radius: 3px;
 			border-radius: 3px;
 			display: block;
 			-webkit-transition: width 0.4s;
-			   -moz-transition: width 0.4s;
-			     -o-transition: width 0.4s;
-			        transition: width 0.4s;
+			-moz-transition: width 0.4s;
+			-o-transition: width 0.4s;
+			transition: width 0.4s;
 		}
 		.data.data-reverse {
 			color: #eee;
 			background: #333;
 			border-color: #000;
 		}
-		.data.data-reverse .loader { background-image: url(loader2.gif); }
+		.data.data-reverse .loader {
+			background-image: url(loader2.gif);
+		}
 		
 	</style>
 	
@@ -107,7 +132,7 @@
 	</div>
 	
 	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-	<script src="../jquery.pollster.min.js"></script>
+	<script src="../jquery.pollster.js"></script>
 	<script>
 		
 		$(document).ready(function() {
@@ -155,57 +180,64 @@
 			// Global plugin defaults:
 			$.pollster.defaults.ajax.dataType = 'json';
 			$.pollster.defaults.url = function() {
+				// Contrived example to illustrate random data:
 				return ('test' + ((Math.random() * 2 | 0) + 1) + '.json');
 			};
 			
 			//----------------------------------------------------------------------
 			
-			bar = function($data, $options) {
+			bar = function($settings, $data) {
 				
 				var $this = $(this);
 				var template;
-				var percent = $data[0].options[0].percent + '%';
+				var percent;
 				
-				console.log($this, $options.count);
-					
-				if ($options.first) {
-					
-					template = [
-						'<p class="data-label"></p>',
-						'<div class="data-bar"><span></span></div>'
-					].join('\n');
-					
-					$this.append(template);
-					
-				}
+				console.log('bar()', $this, $settings.count, 'skipped:', $settings.skipped);
 				
-				var text = $this
-					.find('p')
-						.html($data[0].title + ' ' + percent);
-				
-				$this
-					.find('.data-bar span')
-						.width(percent);
-				
-				if ($options.count == 3) {
+				if ( ! $settings.skipped) {
 					
-					console.log('paused');
-					
-					$options.pause = true;
-					
-					text.append(' (paused)')
-					
-					setTimeout(function() {
+					percent = $data[0].options[0].percent + '%';
 						
-						console.log('unpaused');
+					if ($settings.first) {
 						
-						$options.pause = false;
+						template = [
+							'<p class="data-label"></p>',
+							'<div class="data-bar"><span></span></div>'
+						].join('\n');
 						
-						$.pollster($options);
+						$this.append(template);
 						
-					}, 20000);
+					}
 					
-				}
+					var text = $this
+						.find('p')
+							.html($data[0].title + ' ' + percent);
+					
+					$this
+						.find('.data-bar span')
+							.width(percent);
+					
+					if ($settings.count == 3) {
+						
+						console.log('paused');
+						
+						$settings.pause = true;
+						
+						text.append(' (paused)')
+						
+						setTimeout(function() {
+							
+							console.log('unpaused');
+							
+							$settings.pause = false;
+							
+							$.pollster($settings);
+							
+						}, 20000);
+						
+					}
+					
+				} 
 				
 			};
 			
@@ -219,6 +251,7 @@
 					},
 					context: $('#box1')
 				},
+				skip: [2],
 				callback: bar
 			});
 			
@@ -229,11 +262,11 @@
 				ajax: {
 					context: $('#box2')
 				},
-				callback: function($data, $options) {
+				callback: function($data, $settings) {
 					
 					// Do something with params ...
 					
-					bar.call(this, $data, $options);
+					bar.call(this, $data, $settings);
 					
 				}
 			});

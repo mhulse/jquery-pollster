@@ -25,8 +25,6 @@
 			
 			var $settings = $.extend(true, {}, $defaults, $[NS].defaults, $options);
 			var $timeout;
-			var seconds;
-			var context;
 			
 			// Check required params:
 			if ($settings.url || $settings.ajax.url) {
@@ -40,36 +38,27 @@
 					
 				} else {
 					
-					// Convert seconds to milliseconds:
-					seconds = ($settings.seconds * 1000);
-					
 					// Allow for url to be a function:
 					$settings.ajax.url = ((typeof $settings.url == 'function') ? $settings.url() : $settings.ajax.url);
 					
-					// Give optional context to all ajax-related callbacks:
-					context = ($settings.ajax.context || null);
-					
-					$.ajax($settings.ajax)
-						.done(function($data) {
-							
-							// Success, call user's code:
-							$settings.callback.call(context, $data, $settings);
-							
-							// Helpers:
-							$settings.first = false;
-							$settings.count++;
-							
-						})
-						.always(function() {
-							
-							$timeout = setTimeout(function() {
+					if ($.inArray($settings.count, $settings.skip) !== -1) {
+						
+						$settings.skipped = true;
+						
+						$timeout = methods.restart($settings);
+						
+					} else {
+						
+						$settings.skipped = false;
+						
+						$.ajax($settings.ajax)
+							.always(function($data) {
 								
-								// Wash, rinse and repeat:
-								$[NS].call(context, $settings);
+								$timeout = methods.restart($settings, $data);
 								
-							}, seconds);
-							
-						});
+							});
+						
+					}
 					
 				}
 				
@@ -78,6 +67,30 @@
 				console.warn('jQuery.%s: No URL endpoint specified.', NS);
 				
 			}
+			
+		},
+		
+		restart: function($settings, $data) {
+			
+			$data = ($data || {});
+				
+			// Success, call user's code:
+			$settings.callback.call(
+				($settings.ajax.context || null), // Give optional context to all ajax-related callbacks.
+				$settings,
+				$data
+			);
+			
+			// Helpers:
+			$settings.first = false;
+			$settings.count++;
+			
+			return setTimeout(function() {
+				
+				// Wash, rinse and repeat:
+				$[NS].call(this, $settings);
+				
+			}, ($settings.seconds * 1000)); // Converts seconds to milliseconds.
 			
 		}
 		
