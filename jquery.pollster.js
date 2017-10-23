@@ -44,13 +44,12 @@
 					seconds = ($settings.seconds * 1000);
 					
 					// Allow for url to be a function:
-					$settings.ajax.url = ((typeof $settings.url == 'function') ? $settings.url() : $settings.ajax.url);							
+					$settings.ajax.url = ((typeof $settings.url == 'function') ? $settings.url() : $settings.ajax.url);
 					
 					// Give optional context to all ajax-related callbacks:
 					context = ($settings.ajax.context || null);
 					
-					// Return `$.ajax` to allow client to access chained events:
-					return $.ajax($settings.ajax)
+					$.ajax($settings.ajax)
 						.done(function($data) {
 							
 							// Success, call user's code:
@@ -60,20 +59,13 @@
 							$settings.first = false;
 							$settings.count++;
 							
+						})
+						.always(function() {
+							
 							$timeout = setTimeout(function() {
 								
 								// Wash, rinse and repeat:
 								$[NS].call(context, $settings);
-								
-							}, seconds);
-							
-						})
-						.fail(function() {
-							
-							$timeout = setTimeout(function() {
-								
-								// Ain't no thang!
-								$[NS].call($settings.ajax.context, $settings);
 								
 							}, seconds);
 							
@@ -86,16 +78,6 @@
 				console.warn('jQuery.%s: No URL endpoint specified.', NS);
 				
 			}
-			
-		},
-		
-		destroy: function() {
-			
-			return this.each(function() {
-				
-				// @TODO, this.
-				
-			});
 			
 		}
 		

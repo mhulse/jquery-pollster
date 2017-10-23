@@ -219,15 +219,7 @@
 					},
 					context: $('#box1')
 				},
-				callback: function($data, $options) {
-					
-					bar.call(this, $data, $options);
-					
-				}
-			}).done(function($data) {
-				
-				console.log('done', $data);
-				
+				callback: bar
 			});
 			
 			//----------------------------------------------------------------------
@@ -238,6 +230,8 @@
 					context: $('#box2')
 				},
 				callback: function($data, $options) {
+					
+					// Do something with params ...
 					
 					bar.call(this, $data, $options);
 					
